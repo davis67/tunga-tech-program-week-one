@@ -1,59 +1,94 @@
-let title = document.querySelector("#title");
-let description = document.querySelector("#description");
-let save = document.querySelector("#save");
-let titlevalue = document.querySelector("#titlevalue");
-let descriptionvalue = document.querySelector("#descriptionvalue");
-let data = [];
-let post = {
-  title: "",
-  description: ""
-};
+var postTitle = document.getElementById("postTitleInput");
+var postDescription = document.getElementById("postDescriptionInput");
+var submitButton = document.getElementById("submitButton");
+var updateButton = document.getElementById("updateButton");
+
+function fetchPosts() {
+  var posts = JSON.parse(localStorage.getItem("posts"));
+  var postsList = document.getElementById("postsList");
+
+  postsList.innerHTML = "";
+
+  for (var i = 0; i < posts.length; i++) {
+    var id = posts[i].id;
+    var title = posts[i].title;
+    var desc = posts[i].description;
 
 
-const getTitle = () => {
-  // let customTitle;
-  // title.addEventListener("change", (e) => {
-  //   let titleValue = e.target.value;
-  //   customTitle = titleValue
-  //   titlevalue.innerHTML = `<p>Title: ${titleValue}</p>`;
-
-  // });
-  // console.log("customTitle", customTitle)
-  // return customTitle;
-  return title.value;
-
-}
-
-const getDescription = () => {
-  let descriptionValue;
-  // description.addEventListener("change", e => {
-  //   descriptionValue = e.target.value;
-  //   descriptionvalue.innerHTML = `<p>Description: ${descriptionValue}</p>`;
-  // });
-  return description.value;
-}
-
-
-const onSubmit = () => {
-  let posts;
-  if ((window.localStorage.getItem('posts'))) {
-    posts = JSON.parse(window.localStorage.getItem('posts'));
-  } else {
-    posts = [];
+    postsList.innerHTML += '<div class="well">' +
+      '<h6>Post ID: ' + id + '</h6>' +
+      '<p><span class="label label-info">' + title + '</span></p>' +
+      '<h3>' + desc + '</h3>' +
+      '<a class="btn btn-warning" onclick="updatePost(\'' + id + '\')">Update</a> ' +
+      '<a class="btn btn-danger" onclick="deletePost(\'' + id + '\')">Delete</a>' +
+      '</div>';
   }
-  save.addEventListener("click", (e) => {
-    e.preventDefault();
-    let title = getTitle();
-    let description = getDescription();
-    post.title = title;
-    post.description = description;
-    posts.push(post);
-    window.localStorage.setItem("posts", JSON.stringify(posts));
-
-
-  })
 }
 
-console.log(getTitle());
-getDescription();
-onSubmit();
+document.getElementById("postInputForm").addEventListener("submit", savePost);
+
+function deletePost(id) {
+  var posts = JSON.parse(localStorage.getItem("posts"));
+  for (var i = 0; i < posts.length; i++) {
+    if (posts[i].id == id) {
+      posts.splice(i, 1);
+    }
+  }
+
+  localStorage.setItem("posts", JSON.stringify(posts));
+  fetchPosts();
+}
+
+function updatePost(id) {
+  var posts = JSON.parse(localStorage.getItem("posts"));
+  for (var i = 0; i < posts.length; i++) {
+    if (posts[i].id == id) {
+      postTitle.value = posts[i].title;
+      postDescription.value = posts[i].description;
+      submitButton.value = "Update";
+    }
+  }
+  submitButton.addEventListener("submit", (e) => {
+    e.preventDefault();
+    posts.forEach(post => {
+      if (post.id == id) {
+        post.title = postTitle.value;
+        post.description = postDescription.value;
+        submitButton.value = "Add";
+      }
+
+    });
+
+    localStorage.setItem("posts", JSON.stringify(posts));
+    fetchPosts();
+  });
+
+}
+
+
+function savePost(e) {
+  e.preventDefault();
+  var postId = chance.guid();
+  var post = {
+    id: postId,
+    title: postTitle.value,
+    description: postDescription.value
+  };
+
+  if (submitButton.value == "Add") {
+    if (localStorage.getItem("posts") === null) {
+      var posts = [];
+      posts.push(post);
+      localStorage.setItem("posts", JSON.stringify(posts));
+    } else {
+      var posts = JSON.parse(localStorage.getItem("posts"));
+      posts.push(post);
+      localStorage.setItem("posts", JSON.stringify(posts));
+    }
+  }
+  document.getElementById("postInputForm").reset();
+
+  fetchPosts();
+
+
+}
