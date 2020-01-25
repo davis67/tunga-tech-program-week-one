@@ -42,20 +42,23 @@ function deletePost(id) {
 function updatePost(id) {
   var posts = JSON.parse(localStorage.getItem("posts"));
   for (var i = 0; i < posts.length; i++) {
-    if (posts[i].id == id) {
+    if (posts[i].id === id) {
       postTitle.value = posts[i].title;
       postDescription.value = posts[i].description;
       submitButton.value = "Update";
     }
   }
-  submitButton.addEventListener("submit", (e) => {
+  submitButton.addEventListener("click", (e) => {
     e.preventDefault();
     posts.forEach(post => {
-      if (post.id == id) {
+
+      if (post.id === id) {
+        console.log(post)
         post.title = postTitle.value;
         post.description = postDescription.value;
-        submitButton.value = "Add";
       }
+      document.getElementById("postInputForm").reset();
+      submitButton.value = "Add";
 
     });
 
